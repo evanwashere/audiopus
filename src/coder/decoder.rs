@@ -155,7 +155,7 @@ impl Decoder {
     /// Returns [Error::Opus] when Opus encountered a problem
     ///
     /// [Error::Opus]: crate::error::Error::Opus
-    fn decoder_ctl_request(&self, request: i32) -> Result<i32> {
+    pub fn decoder_ctl_request(&self, request: i32) -> Result<i32> {
         let mut value = 0;
 
         let ffi_result = unsafe { ffi::opus_decoder_ctl(self.pointer, request, &mut value) };
@@ -173,7 +173,7 @@ impl Decoder {
     /// Returns [Error::Opus] when Opus encountered a problem
     ///
     /// [Error::Opus]: crate::error::Error::Opus
-    fn set_decoder_ctl_request(&self, request: i32, value: i32) -> Result<()> {
+    pub fn set_decoder_ctl_request(&self, request: i32, value: i32) -> Result<()> {
         try_map_opus_error(unsafe { ffi::opus_decoder_ctl(self.pointer, request, value) })?;
 
         Ok(())
