@@ -137,7 +137,7 @@ impl Encoder {
     /// `output` payload and on success returns the length of the
     /// encoded packet.
     pub fn encode(&self, input: &[i16], output: &mut [u8]) -> Result<usize> {
-        try_map_opus_error(unsafe {
+        match try_map_opus_error(unsafe {
             ffi::opus_encode(
                 self.pointer,
                 input.as_ptr(),
@@ -145,8 +145,10 @@ impl Encoder {
                 output.as_mut_ptr(),
                 output.len() as i32,
             )
-        })
-        .map(|n| n as usize)
+        }) {
+            Err(x) => Err(x),
+            Ok(x) => Ok(x as usize),
+        }
     }
 
     /// Encodes an Opus frame from floating point input.

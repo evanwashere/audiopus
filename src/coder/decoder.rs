@@ -72,27 +72,22 @@ impl Decoder {
     /// [Error::Opus]: crate::error::Error::Opus
     pub fn decode(
         &mut self,
-        input: Option<Packet<'_>>,
-        mut output: MutSignals<'_, i16>,
-        fec: bool,
+        input: &[u8],
+        output: &mut [i16],
     ) -> Result<usize> {
-        let (input_pointer, input_len) = if let Some(value) = input {
-            (value.as_ptr(), value.i32_len())
-        } else {
-            (std::ptr::null(), 0)
-        };
-
-        try_map_opus_error(unsafe {
+        match try_map_opus_error(unsafe {
             ffi::opus_decode(
                 self.pointer,
-                input_pointer,
-                input_len,
+                input.as_ptr(),
+                input.len() as i32,
                 output.as_mut_ptr(),
-                output.i32_len() / self.channels as i32,
-                fec as i32,
+                (output.len() / self.channels as usize) as i32,
+                0,
             )
-        })
-        .map(|n| n as usize)
+        }) {
+            Err(x) => Err(x),
+            Ok(x) => Ok(x as usize),
+        }
     }
 
     /// Decodes an Opus frame from floating point input.
