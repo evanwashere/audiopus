@@ -19,31 +19,31 @@ unsafe impl Send for Decoder {}
 
 impl GenericCtl for Decoder {
     fn final_range(&self) -> Result<u32> {
-        self.decoder_ctl_request(ffi::OPUS_GET_FINAL_RANGE_REQUEST)
+        self.decoder_ctl_request(ffi::OPUS_GET_FINAL_RANGE_REQUEST as _)
             .map(|v| v as u32)
     }
 
     fn phase_inversion_disabled(&self) -> Result<bool> {
-        self.decoder_ctl_request(ffi::OPUS_GET_PHASE_INVERSION_DISABLED_REQUEST)
+        self.decoder_ctl_request(ffi::OPUS_GET_PHASE_INVERSION_DISABLED_REQUEST as _)
             .map(|b| b == 1)
     }
 
     fn set_phase_inversion_disabled(&mut self, disabled: bool) -> Result<()> {
         let disable_phase_inversion = if disabled { 1 } else { 0 };
         self.set_decoder_ctl_request(
-            ffi::OPUS_SET_PHASE_INVERSION_DISABLED_REQUEST,
+            ffi::OPUS_SET_PHASE_INVERSION_DISABLED_REQUEST as _,
             disable_phase_inversion,
         )
         .map(|_| ())
     }
 
     fn sample_rate(&self) -> Result<SampleRate> {
-        self.decoder_ctl_request(ffi::OPUS_GET_SAMPLE_RATE_REQUEST)
+        self.decoder_ctl_request(ffi::OPUS_GET_SAMPLE_RATE_REQUEST as _)
             .and_then(SampleRate::try_from)
     }
 
     fn reset_state(&mut self) -> Result<()> {
-        self.decoder_ctl_request(ffi::OPUS_RESET_STATE).map(|_| ())
+        self.decoder_ctl_request(ffi::OPUS_RESET_STATE as _).map(|_| ())
     }
 }
 
@@ -56,7 +56,7 @@ impl Decoder {
             ffi::opus_decoder_create(sample_rate as i32, channels as i32, &mut opus_code)
         };
 
-        if opus_code == ffi::OPUS_OK || !pointer.is_null() {
+        if opus_code == ffi::OPUS_OK as _ || !pointer.is_null() {
             return Ok(Decoder { pointer, channels });
         }
 
@@ -177,7 +177,7 @@ impl Decoder {
     /// Gets the duration (in samples) of the last packet successfully decoded
     /// or concealed.
     pub fn last_packet_duration(&self) -> Result<u32> {
-        self.decoder_ctl_request(ffi::OPUS_GET_LAST_PACKET_DURATION_REQUEST)
+        self.decoder_ctl_request(ffi::OPUS_GET_LAST_PACKET_DURATION_REQUEST as _)
             .map(|v| v as u32)
     }
 
@@ -188,13 +188,13 @@ impl Decoder {
     /// If the last frame was not voiced, or if the pitch was not coded in the
     /// frame, then zero is returned.
     pub fn pitch(&self) -> Result<i32> {
-        self.decoder_ctl_request(ffi::OPUS_GET_PITCH_REQUEST)
+        self.decoder_ctl_request(ffi::OPUS_GET_PITCH_REQUEST as _)
     }
 
     /// Gets the decoder's configured amount to scale PCM signal by
     /// in Q8 dB units.
     pub fn gain(&self) -> Result<i32> {
-        self.decoder_ctl_request(ffi::OPUS_GET_GAIN_REQUEST)
+        self.decoder_ctl_request(ffi::OPUS_GET_GAIN_REQUEST as _)
     }
 
     /// Configures decoder gain adjustment.
@@ -212,7 +212,7 @@ impl Decoder {
     ///
     /// [`BadArgument`]: ../error/enum.ErrorCode.html#variant.BadArgument
     pub fn set_gain(&self, gain: i32) -> Result<()> {
-        self.set_decoder_ctl_request(ffi::OPUS_SET_GAIN_REQUEST, gain)
+        self.set_decoder_ctl_request(ffi::OPUS_SET_GAIN_REQUEST as _, gain)
     }
 
     /// Gets size of self's underlying Opus-decoder in bytes.

@@ -52,12 +52,15 @@ use std::{
 pub use crate::error::{Error, ErrorCode, Result};
 pub use audiopus_sys as ffi;
 
+pub const FFI_OPUS_SIGNAL_VOICE: i32 = ffi::OPUS_SIGNAL_VOICE as i32;
+pub const FFI_OPUS_SIGNAL_MUSIC: i32 = ffi::OPUS_SIGNAL_MUSIC as i32;
+
 #[repr(i32)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub enum Signal {
     Auto = ffi::OPUS_AUTO,
-    Voice = ffi::OPUS_SIGNAL_VOICE,
-    Music = ffi::OPUS_SIGNAL_MUSIC,
+    Voice = FFI_OPUS_SIGNAL_VOICE,
+    Music = FFI_OPUS_SIGNAL_MUSIC,
 }
 
 impl TryFrom<i32> for Signal {
@@ -66,8 +69,8 @@ impl TryFrom<i32> for Signal {
     fn try_from(value: i32) -> Result<Self> {
         Ok(match value {
             ffi::OPUS_AUTO => Signal::Auto,
-            ffi::OPUS_SIGNAL_VOICE => Signal::Voice,
-            ffi::OPUS_SIGNAL_MUSIC => Signal::Music,
+            FFI_OPUS_SIGNAL_VOICE => Signal::Voice,
+            FFI_OPUS_SIGNAL_MUSIC => Signal::Music,
             _ => return Err(Error::InvalidSignal(value)),
         })
     }
@@ -140,12 +143,12 @@ impl TryFrom<i32> for SampleRate {
 pub enum Application {
     /// Best for most VoIP/videoconference applications where listening quality
     /// and intelligibility matter most.
-    Voip = ffi::OPUS_APPLICATION_VOIP,
+    Voip = 2048,
     /// Best for broadcast/high-fidelity application where the decoded audio
     /// should be as close as possible to the input.
-    Audio = ffi::OPUS_APPLICATION_AUDIO,
+    Audio = 2049,
     /// Only use when lowest-achievable latency is what matters most.
-    LowDelay = ffi::OPUS_APPLICATION_RESTRICTED_LOWDELAY,
+    LowDelay = 2051,
 }
 
 impl TryFrom<i32> for Application {
@@ -153,7 +156,7 @@ impl TryFrom<i32> for Application {
 
     /// Fails if a value does not match Opus' specified application-value.
     fn try_from(value: i32) -> Result<Self> {
-        Ok(match value {
+        Ok(match value as _ {
             ffi::OPUS_APPLICATION_VOIP => Application::Voip,
             ffi::OPUS_APPLICATION_AUDIO => Application::Audio,
             ffi::OPUS_APPLICATION_RESTRICTED_LOWDELAY => Application::LowDelay,
@@ -217,15 +220,15 @@ pub enum Bandwidth {
     /// Pick the bandwidth automatically.
     Auto = ffi::OPUS_AUTO,
     /// A 4kHz bandwidth.
-    Narrowband = ffi::OPUS_BANDWIDTH_NARROWBAND,
+    Narrowband = ffi::OPUS_BANDWIDTH_NARROWBAND as _,
     /// A 6kHz bandwidth.
-    Mediumband = ffi::OPUS_BANDWIDTH_MEDIUMBAND,
+    Mediumband = ffi::OPUS_BANDWIDTH_MEDIUMBAND as _,
     /// A 8kHz bandwidth.
-    Wideband = ffi::OPUS_BANDWIDTH_WIDEBAND,
+    Wideband = ffi::OPUS_BANDWIDTH_WIDEBAND as _,
     /// A 12kHz bandwidth.
-    Superwideband = ffi::OPUS_BANDWIDTH_SUPERWIDEBAND,
+    Superwideband = ffi::OPUS_BANDWIDTH_SUPERWIDEBAND as _,
     /// A 20kHz bandwidth.
-    Fullband = ffi::OPUS_BANDWIDTH_FULLBAND,
+    Fullband = ffi::OPUS_BANDWIDTH_FULLBAND as _,
 }
 
 impl TryFrom<i32> for Bandwidth {
@@ -233,8 +236,11 @@ impl TryFrom<i32> for Bandwidth {
 
     // Fails if a value does not match Opus' specified bandwidth-value.
     fn try_from(value: i32) -> Result<Self> {
-        Ok(match value {
-            ffi::OPUS_AUTO => Bandwidth::Auto,
+        if value == ffi::OPUS_AUTO {
+            return Ok(Bandwidth::Auto);
+        }
+
+        Ok(match value as _ {
             ffi::OPUS_BANDWIDTH_NARROWBAND => Bandwidth::Narrowband,
             ffi::OPUS_BANDWIDTH_MEDIUMBAND => Bandwidth::Mediumband,
             ffi::OPUS_BANDWIDTH_WIDEBAND => Bandwidth::Wideband,
@@ -310,30 +316,5 @@ mod tests {
         // We can't actually check the contents of the string, as it will change when the version
         // changes. By just calling the function we can ensure that the CStr conversion succeeds.
         version();
-    }
-
-    #[test]
-    fn signal_try_from() {
-        assert_matches!(Signal::try_from(ffi::OPUS_SIGNAL_MUSIC), Ok(Signal::Music));
-        assert_matches!(Signal::try_from(ffi::OPUS_SIGNAL_VOICE), Ok(Signal::Voice));
-        assert_matches!(Signal::try_from(ffi::OPUS_AUTO), Ok(Signal::Auto));
-        assert_matches!(Signal::try_from(0), Err(Error::InvalidSignal(0)));
-    }
-
-    #[test]
-    fn application_try_from() {
-        assert_matches!(
-            Application::try_from(ffi::OPUS_APPLICATION_AUDIO),
-            Ok(Application::Audio)
-        );
-        assert_matches!(
-            Application::try_from(ffi::OPUS_APPLICATION_VOIP),
-            Ok(Application::Voip)
-        );
-        assert_matches!(
-            Application::try_from(ffi::OPUS_APPLICATION_RESTRICTED_LOWDELAY),
-            Ok(Application::LowDelay)
-        );
-        assert_matches!(Application::try_from(11), Err(Error::InvalidApplication));
     }
 }

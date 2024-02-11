@@ -24,13 +24,13 @@ impl GenericCtl for Encoder {
     /// be identical after coding a payload, assuming no data corruption or
     /// software bugs.
     fn final_range(&self) -> Result<u32> {
-        self.encoder_ctl_request(ffi::OPUS_GET_FINAL_RANGE_REQUEST)
+        self.encoder_ctl_request(ffi::OPUS_GET_FINAL_RANGE_REQUEST as _)
             .map(|v| v as u32)
     }
 
     /// Gets the encoder's configured phase inversion status.
     fn phase_inversion_disabled(&self) -> Result<bool> {
-        self.encoder_ctl_request(ffi::OPUS_SET_PHASE_INVERSION_DISABLED_REQUEST)
+        self.encoder_ctl_request(ffi::OPUS_SET_PHASE_INVERSION_DISABLED_REQUEST as _)
             .map(|b| b == 1)
     }
 
@@ -45,7 +45,7 @@ impl GenericCtl for Encoder {
     fn set_phase_inversion_disabled(&mut self, disabled: bool) -> Result<()> {
         let disable_phase_inversion = if disabled { 1 } else { 0 };
         self.set_encoder_ctl_request(
-            ffi::OPUS_SET_PHASE_INVERSION_DISABLED_REQUEST,
+            ffi::OPUS_SET_PHASE_INVERSION_DISABLED_REQUEST as _,
             disable_phase_inversion,
         )
         .map(|_| ())
@@ -57,7 +57,7 @@ impl GenericCtl for Encoder {
     ///
     /// [`Encoder::new`]: struct.Encoder.html#method.new
     fn sample_rate(&self) -> Result<SampleRate> {
-        self.encoder_ctl_request(ffi::OPUS_GET_SAMPLE_RATE_REQUEST)
+        self.encoder_ctl_request(ffi::OPUS_GET_SAMPLE_RATE_REQUEST as _)
             .and_then(SampleRate::try_from)
     }
 
@@ -67,7 +67,7 @@ impl GenericCtl for Encoder {
     /// back to back decoding from giving different results from one at a
     /// time decoding.
     fn reset_state(&mut self) -> Result<()> {
-        self.encoder_ctl_request(ffi::OPUS_RESET_STATE).map(|_| ())
+        self.encoder_ctl_request(ffi::OPUS_RESET_STATE as _).map(|_| ())
     }
 }
 
@@ -92,7 +92,7 @@ impl Encoder {
             )
         };
 
-        if opus_code == ffi::OPUS_OK || !pointer.is_null() {
+        if opus_code == ffi::OPUS_OK as _ || !pointer.is_null() {
             return Ok(Encoder { pointer, channels });
         }
 
@@ -171,7 +171,7 @@ impl Encoder {
 
     /// Gets the encoder's complexity configuration.
     pub fn complexity(&self) -> Result<u8> {
-        self.encoder_ctl_request(ffi::OPUS_GET_COMPLEXITY_REQUEST)
+        self.encoder_ctl_request(ffi::OPUS_GET_COMPLEXITY_REQUEST as _)
             .map(|v| v as u8)
     }
 
@@ -182,12 +182,12 @@ impl Encoder {
     ///
     /// [`BadArgument`]: ../error/enum.ErrorCode.html#variant.BadArgument.html
     pub fn set_complexity(&mut self, complexity: u8) -> Result<()> {
-        self.set_encoder_ctl_request(ffi::OPUS_SET_COMPLEXITY_REQUEST, i32::from(complexity))
+        self.set_encoder_ctl_request(ffi::OPUS_SET_COMPLEXITY_REQUEST as _, i32::from(complexity))
     }
 
     /// Gets the encoder's configured application.
     pub fn application(&self) -> Result<Application> {
-        self.encoder_ctl_request(ffi::OPUS_GET_APPLICATION_REQUEST)
+        self.encoder_ctl_request(ffi::OPUS_GET_APPLICATION_REQUEST as _)
             .and_then(Application::try_from)
     }
 
@@ -197,7 +197,7 @@ impl Encoder {
     ///
     /// [`new`]: struct.Encoder.html#method.new
     pub fn set_application(&mut self, application: Application) -> Result<()> {
-        self.set_encoder_ctl_request(ffi::OPUS_SET_APPLICATION_REQUEST, application as i32)
+        self.set_encoder_ctl_request(ffi::OPUS_SET_APPLICATION_REQUEST as _, application as i32)
             .map(|_| ())
     }
 
@@ -209,14 +209,14 @@ impl Encoder {
     /// as much rate as it can, which is useful for controlling the rate by
     /// adjusting the output buffer size.
     pub fn set_bitrate(&mut self, bitrate: Bitrate) -> Result<()> {
-        self.set_encoder_ctl_request(ffi::OPUS_SET_BITRATE_REQUEST, bitrate.into())?;
+        self.set_encoder_ctl_request(ffi::OPUS_SET_BITRATE_REQUEST as _, bitrate.into())?;
 
         Ok(())
     }
 
     /// Gets the encoder's configured bandpass.
     pub fn bitrate(&self) -> Result<Bitrate> {
-        self.encoder_ctl_request(ffi::OPUS_GET_BITRATE_REQUEST)
+        self.encoder_ctl_request(ffi::OPUS_GET_BITRATE_REQUEST as _)
             .and_then(Bitrate::try_from)
     }
 
@@ -262,7 +262,7 @@ impl Encoder {
         let if_vbr_shall_be_enabled = if enable { 1 } else { 0 };
 
         self.set_encoder_ctl_request(
-            ffi::OPUS_SET_VBR_CONSTRAINT_REQUEST,
+            ffi::OPUS_SET_VBR_CONSTRAINT_REQUEST as _,
             if_vbr_shall_be_enabled,
         )
         .map(|_| ())
@@ -270,7 +270,7 @@ impl Encoder {
 
     /// Determine if constrained VBR is enabled in the encoder.
     pub fn vbr_constraint(&self) -> Result<bool> {
-        self.encoder_ctl_request(ffi::OPUS_GET_VBR_CONSTRAINT_REQUEST)
+        self.encoder_ctl_request(ffi::OPUS_GET_VBR_CONSTRAINT_REQUEST as _)
             .map(|b| b == 1)
     }
 
@@ -297,13 +297,13 @@ impl Encoder {
     pub fn set_vbr(&mut self, enable: bool) -> Result<()> {
         let if_vbr_shall_be_enabled = if enable { 1 } else { 0 };
 
-        self.set_encoder_ctl_request(ffi::OPUS_SET_VBR_REQUEST, if_vbr_shall_be_enabled)
+        self.set_encoder_ctl_request(ffi::OPUS_SET_VBR_REQUEST as _, if_vbr_shall_be_enabled)
             .map(|_| ())
     }
 
     /// Determine if variable bitrate (VBR) is enabled in the encoder.
     pub fn vbr(&self) -> Result<bool> {
-        self.encoder_ctl_request(ffi::OPUS_GET_VBR_REQUEST)
+        self.encoder_ctl_request(ffi::OPUS_GET_VBR_REQUEST as _)
             .map(|b| b == 1)
     }
 
@@ -312,7 +312,7 @@ impl Encoder {
         let if_inband_fec_shall_be_enabled = if enable { 1 } else { 0 };
 
         self.set_encoder_ctl_request(
-            ffi::OPUS_SET_INBAND_FEC_REQUEST,
+            ffi::OPUS_SET_INBAND_FEC_REQUEST as _,
             if_inband_fec_shall_be_enabled,
         )
         .map(|_| ())
@@ -330,13 +330,13 @@ impl Encoder {
 
     /// Gets encoder's configured use of inband forward error correction.
     pub fn inband_fec(&self) -> Result<bool> {
-        self.encoder_ctl_request(ffi::OPUS_GET_INBAND_FEC_REQUEST)
+        self.encoder_ctl_request(ffi::OPUS_GET_INBAND_FEC_REQUEST as _)
             .map(|n| n == 1)
     }
 
     /// Gets the encoder's configured packet loss percentage.
     pub fn packet_loss_perc(&self) -> Result<u8> {
-        self.encoder_ctl_request(ffi::OPUS_GET_PACKET_LOSS_PERC_REQUEST)
+        self.encoder_ctl_request(ffi::OPUS_GET_PACKET_LOSS_PERC_REQUEST as _)
             .map(|n| n as u8)
     }
 
@@ -347,7 +347,7 @@ impl Encoder {
     /// Configures the encoder's expected packet loss percentage.
     pub fn set_packet_loss_perc(&mut self, percentage: u8) -> Result<()> {
         self.set_encoder_ctl_request(
-            ffi::OPUS_SET_PACKET_LOSS_PERC_REQUEST,
+            ffi::OPUS_SET_PACKET_LOSS_PERC_REQUEST as _,
             i32::from(percentage),
         )
         .map(|_| ())
@@ -367,7 +367,7 @@ impl Encoder {
     /// Applications needing delay compensation should call this method
     /// rather than hard-coding a value.
     pub fn lookahead(&self) -> Result<u32> {
-        self.encoder_ctl_request(ffi::OPUS_GET_LOOKAHEAD_REQUEST)
+        self.encoder_ctl_request(ffi::OPUS_GET_LOOKAHEAD_REQUEST as _)
             .map(|n| n as u32)
     }
 
@@ -378,19 +378,19 @@ impl Encoder {
     /// This is useful when the caller knows that the input signal is
     /// currently a mono source embedded in a stereo stream.
     pub fn set_force_channels(&mut self, channels: Channels) -> Result<()> {
-        self.set_encoder_ctl_request(ffi::OPUS_SET_FORCE_CHANNELS_REQUEST, channels as i32)
+        self.set_encoder_ctl_request(ffi::OPUS_SET_FORCE_CHANNELS_REQUEST as _, channels as i32)
             .map(|_| ())
     }
 
     /// Gets the encoder's forced channel configuration.
     pub fn force_channels(&self) -> Result<Channels> {
-        self.encoder_ctl_request(ffi::OPUS_GET_FORCE_CHANNELS_REQUEST)
+        self.encoder_ctl_request(ffi::OPUS_GET_FORCE_CHANNELS_REQUEST as _)
             .and_then(Channels::try_from)
     }
 
     /// Gets the encoder's configured maximum allowed bandpass.
     pub fn max_bandwidth(&self) -> Result<Bandwidth> {
-        self.encoder_ctl_request(ffi::OPUS_GET_MAX_BANDWIDTH_REQUEST)
+        self.encoder_ctl_request(ffi::OPUS_GET_MAX_BANDWIDTH_REQUEST as _)
             .and_then(Bandwidth::try_from)
     }
 
@@ -412,12 +412,12 @@ impl Encoder {
     /// [`Bandwidth::Auto`]: ../enum.Bandwidth.html#variant.Auto
     /// [`BadArgument`]: ../error/enum.ErrorCode.html#variant.BadArgument.html
     pub fn set_max_bandwidth(&mut self, bandwidth: Bandwidth) -> Result<()> {
-        self.set_encoder_ctl_request(ffi::OPUS_SET_MAX_BANDWIDTH_REQUEST, bandwidth as i32)
+        self.set_encoder_ctl_request(ffi::OPUS_SET_MAX_BANDWIDTH_REQUEST as _, bandwidth as i32)
     }
 
     /// Gets the encoder's configured prediction status.
     pub fn prediction_disabled(&self) -> Result<bool> {
-        self.encoder_ctl_request(ffi::OPUS_GET_PREDICTION_DISABLED_REQUEST)
+        self.encoder_ctl_request(ffi::OPUS_GET_PREDICTION_DISABLED_REQUEST as _)
             .map(|n| n == 1)
     }
 
@@ -429,7 +429,7 @@ impl Encoder {
         let prediction_disabled = if prediction_disabled { 1 } else { 0 };
 
         self.set_encoder_ctl_request(
-            ffi::OPUS_SET_PREDICTION_DISABLED_REQUEST,
+            ffi::OPUS_SET_PREDICTION_DISABLED_REQUEST as _,
             prediction_disabled,
         )
         .map(|_| ())
@@ -437,7 +437,7 @@ impl Encoder {
 
     /// Gets the encoder's configured signal type.
     pub fn signal(&self) -> Result<Signal> {
-        self.encoder_ctl_request(ffi::OPUS_GET_SIGNAL_REQUEST)
+        self.encoder_ctl_request(ffi::OPUS_GET_SIGNAL_REQUEST as _)
             .and_then(Signal::try_from)
     }
 
@@ -445,13 +445,13 @@ impl Encoder {
     ///
     /// This is a hint which helps the encoder's mode selection.
     pub fn set_signal(&mut self, signal: Signal) -> Result<()> {
-        self.set_encoder_ctl_request(ffi::OPUS_SET_SIGNAL_REQUEST, signal as i32)
+        self.set_encoder_ctl_request(ffi::OPUS_SET_SIGNAL_REQUEST as _, signal as i32)
             .map(|_| ())
     }
 
     /// Gets the encoder's configured bandpass.
     pub fn bandwidth(&self) -> Result<Bandwidth> {
-        self.encoder_ctl_request(ffi::OPUS_GET_BANDWIDTH_REQUEST)
+        self.encoder_ctl_request(ffi::OPUS_GET_BANDWIDTH_REQUEST as _)
             .and_then(Bandwidth::try_from)
     }
 
@@ -466,12 +466,12 @@ impl Encoder {
     ///
     /// [`set_max_bandwidth`]: struct.Encoder.html#method.set_max_bandwidth
     pub fn set_bandwidth(&mut self, bandwidth: Bandwidth) -> Result<()> {
-        self.set_encoder_ctl_request(ffi::OPUS_SET_BANDWIDTH_REQUEST, bandwidth as i32)
+        self.set_encoder_ctl_request(ffi::OPUS_SET_BANDWIDTH_REQUEST as _, bandwidth as i32)
     }
 
     /// Gets encoder's configured use of discontinuous transmission.
     pub fn dtx(&self) -> Result<bool> {
-        self.encoder_ctl_request(ffi::OPUS_GET_DTX_REQUEST)
+        self.encoder_ctl_request(ffi::OPUS_GET_DTX_REQUEST as _)
             .map(|n| n == 1)
     }
 
@@ -479,7 +479,7 @@ impl Encoder {
     pub fn set_dtx(&mut self, dtx: bool) -> Result<()> {
         let dtx_shall_be_enabled = if dtx { 1 } else { 0 };
 
-        self.set_encoder_ctl_request(ffi::OPUS_SET_DTX_REQUEST, dtx_shall_be_enabled)
+        self.set_encoder_ctl_request(ffi::OPUS_SET_DTX_REQUEST as _, dtx_shall_be_enabled)
             .map(|_| ())
     }
 
@@ -495,7 +495,7 @@ impl Encoder {
 
     /// Gets the encoder's configured signal depth.
     pub fn lsb_depth(&self) -> Result<u8> {
-        self.encoder_ctl_request(ffi::OPUS_GET_LSB_DEPTH_REQUEST)
+        self.encoder_ctl_request(ffi::OPUS_GET_LSB_DEPTH_REQUEST as _)
             .map(|n| n as u8)
     }
 
@@ -513,7 +513,7 @@ impl Encoder {
     /// compiled for fixed-point, the encoder uses the minimum of the value set
     /// here and the value 16.
     pub fn set_lsb_depth(&mut self, lsb_depth: u8) -> Result<()> {
-        self.set_encoder_ctl_request(ffi::OPUS_SET_LSB_DEPTH_REQUEST, i32::from(lsb_depth))
+        self.set_encoder_ctl_request(ffi::OPUS_SET_LSB_DEPTH_REQUEST as _, i32::from(lsb_depth))
             .map(|_| ())
     }
 }
